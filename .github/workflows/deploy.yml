@@ -1,0 +1,28 @@
+# ------------------------------------------------------------
+#  Manual production deployment workflow
+# ------------------------------------------------------------
+
+name: deploy
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup SSH
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: 'PLACEHOLDER'
+
+      - uses: actions/checkout@v2
+
+      - name: Deploy to all servers
+        env:
+          DO_TOKEN: ${{ secrets.DO_TOKEN }}
+        working-directory: ./.github/workflows/cd
+        run: |
+          ./deploy-app.sh \
+            --env-dir=./cloudretro.io \
+            --provider-dir=./_provider/digital-ocean
